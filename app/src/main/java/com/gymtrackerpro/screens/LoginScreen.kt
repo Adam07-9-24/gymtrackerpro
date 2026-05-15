@@ -22,120 +22,153 @@ import com.gymtrackerpro.data.AppDatabase
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(onLoginSuccess: (Int) -> Unit, onNavigateToRegistro: () -> Unit) {
+fun LoginScreen(
+    onLoginSuccess: (Int) -> Unit,
+    onNavigateToRegistro: () -> Unit
+) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val scope = rememberCoroutineScope()
-    
+    val snackbarHostState = remember { SnackbarHostState() }
+
     var usuario by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Icono circular
-        Box(
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { padding ->
+
+        Column(
             modifier = Modifier
-                .size(100.dp)
-                .background(Color(0xFFE8EAF6), CircleShape),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.FitnessCenter,
-                contentDescription = null,
-                modifier = Modifier.size(50.dp),
-                tint = Color(0xFF3F51B5)
-            )
-        }
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color(0xFFE8EAF6), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FitnessCenter,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp),
+                    tint = Color(0xFF3F51B5)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "GymTracker Pro",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-        Text(
-            text = "Inicia sesión para continuar",
-            fontSize = 16.sp,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Campo Usuario
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Usuario", fontWeight = FontWeight.Medium)
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = usuario,
-                onValueChange = { usuario = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("jperez") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                shape = RoundedCornerShape(12.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Campo Contraseña
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Contraseña", fontWeight = FontWeight.Medium)
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("********") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
-                shape = RoundedCornerShape(12.dp)
-            )
-        }
-
-        if (errorMessage.isNotEmpty()) {
             Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
+                text = "GymTracker Pro",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "Inicia sesión para continuar",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
 
-        Button(
-            onClick = {
-                scope.launch {
-                    val user = db.usuarioDao().login(usuario, password)
-                    if (user != null) {
-                        onLoginSuccess(user.id)
-                    } else {
-                        errorMessage = "Usuario o contraseña incorrectos"
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(text = "Usuario", fontWeight = FontWeight.Medium)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = usuario,
+                    onValueChange = { usuario = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("jperez") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Person, contentDescription = null)
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(text = "Contraseña", fontWeight = FontWeight.Medium)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("********") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Lock, contentDescription = null)
+                    },
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    if (usuario.isBlank() || password.isBlank()) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Ingrese usuario y contraseña")
+                        }
+                        return@Button
                     }
+
+                    scope.launch {
+                        val user = db.usuarioDao().login(usuario, password)
+
+                        if (user != null) {
+                            onLoginSuccess(user.id)
+                        } else {
+                            snackbarHostState.showSnackbar("Usuario o contraseña incorrectos")
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2B579A)
+                )
+            ) {
+                Text(
+                    text = "Iniciar sesión",
+                    fontSize = 16.sp,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "¿No tienes cuenta? ")
+
+                TextButton(
+                    onClick = onNavigateToRegistro,
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = "Regístrate",
+                        color = Color(0xFF2B579A),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B579A))
-        ) {
-            Text("Iniciar sesión", fontSize = 16.sp, color = Color.White)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "¿No tienes cuenta? ")
-            TextButton(onClick = onNavigateToRegistro, contentPadding = PaddingValues(0.dp)) {
-                Text(text = "Regístrate", color = Color(0xFF2B579A), fontWeight = FontWeight.Bold)
             }
         }
     }
