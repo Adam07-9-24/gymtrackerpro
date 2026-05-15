@@ -3,7 +3,6 @@ package com.gymtrackerpro.screens
 import android.util.Patterns
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,11 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.gymtrackerpro.data.AppDatabase
 import com.gymtrackerpro.data.Usuario
 import kotlinx.coroutines.launch
@@ -32,6 +28,8 @@ fun RegistroScreen(
     val db = remember { AppDatabase.getDatabase(context) }
     val scope = rememberCoroutineScope()
 
+    val azul = Color(0xFF2B579A)
+
     var nombreCompleto by remember { mutableStateOf("") }
     var usuario by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -43,19 +41,22 @@ fun RegistroScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Crear cuenta", color = Color.White)
+                    Text(
+                        text = "Crear cuenta",
+                        color = Color.White
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateToLogin) {
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
                             tint = Color.White
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF2B579A)
+                    containerColor = azul
                 )
             )
         }
@@ -69,60 +70,62 @@ fun RegistroScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            FieldWithLabel(
-                label = "Nombre completo",
+
+            OutlinedTextField(
                 value = nombreCompleto,
-                placeholder = "Juan Pérez Vela"
-            ) {
-                nombreCompleto = it
-            }
+                onValueChange = { nombreCompleto = it },
+                label = { Text("Nombre completo") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            FieldWithLabel(
-                label = "Usuario",
+            OutlinedTextField(
                 value = usuario,
-                placeholder = "jperez"
-            ) {
-                usuario = it
-            }
+                onValueChange = { usuario = it },
+                label = { Text("Usuario") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            FieldWithLabel(
-                label = "Email",
+            OutlinedTextField(
                 value = email,
-                placeholder = "juan@mail.com"
-            ) {
-                email = it
-            }
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            FieldWithLabel(
-                label = "Edad",
+            OutlinedTextField(
                 value = edad,
-                placeholder = "25"
-            ) {
-                edad = it
-            }
+                onValueChange = { edad = it },
+                label = { Text("Edad") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            FieldWithLabel(
-                label = "Contraseña",
+            OutlinedTextField(
                 value = password,
-                placeholder = "********",
-                isPassword = true
-            ) {
-                password = it
-            }
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation()
+            )
 
             if (errorMessage.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
                     text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp)
+                    color = MaterialTheme.colorScheme.error
                 )
             }
 
@@ -190,52 +193,15 @@ fun RegistroScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2B579A)
+                    containerColor = azul
                 )
             ) {
                 Text(
                     text = "Registrarme",
-                    fontSize = 16.sp,
                     color = Color.White
                 )
             }
         }
-    }
-}
-
-@Composable
-fun FieldWithLabel(
-    label: String,
-    value: String,
-    placeholder: String,
-    isPassword: Boolean = false,
-    onValueChange: (String) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text(placeholder)
-            },
-            visualTransformation = if (isPassword) {
-                PasswordVisualTransformation()
-            } else {
-                VisualTransformation.None
-            },
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true
-        )
     }
 }

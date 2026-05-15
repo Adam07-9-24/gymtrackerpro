@@ -1,24 +1,18 @@
 package com.gymtrackerpro.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.gymtrackerpro.data.AppDatabase
 import com.gymtrackerpro.data.Rutina
 import kotlinx.coroutines.launch
@@ -34,6 +28,8 @@ fun AgregarRutinaScreen(
     val db = remember { AppDatabase.getDatabase(context) }
     val scope = rememberCoroutineScope()
 
+    val azul = Color(0xFF2B579A)
+
     var ejercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
     var series by remember { mutableStateOf("") }
@@ -45,110 +41,112 @@ fun AgregarRutinaScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva rutina", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = "Nueva rutina",
+                        color = Color.White
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
                             tint = Color.White
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { /* Acción calendario */ }) {
-                        Icon(
-                            Icons.Default.CalendarMonth,
-                            contentDescription = "Calendario",
-                            tint = Color.White
-                        )
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF2B579A)
+                    containerColor = azul
                 )
             )
         }
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color(0xFFF8F9FA))
+                .padding(24.dp)
                 .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            
-            CampoTextoPersonalizado(
-                label = "Ejercicio",
+            OutlinedTextField(
                 value = ejercicio,
-                placeholder = "Press banca",
-                onValueChange = { ejercicio = it }
-            )
-
-            CampoTextoPersonalizado(
-                label = "Grupo muscular",
-                value = grupoMuscular,
-                placeholder = "Pecho",
-                onValueChange = { grupoMuscular = it },
-                trailingIcon = {
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.Gray)
-                }
-            )
-
-            Row(
+                onValueChange = { ejercicio = it },
+                label = { Text("Ejercicio") },
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    CampoTextoPersonalizado(
-                        label = "Series",
-                        value = series,
-                        placeholder = "4",
-                        keyboardType = KeyboardType.Number,
-                        onValueChange = { series = it }
-                    )
-                }
-                Box(modifier = Modifier.weight(1f)) {
-                    CampoTextoPersonalizado(
-                        label = "Repeticiones",
-                        value = repeticiones,
-                        placeholder = "12",
-                        keyboardType = KeyboardType.Number,
-                        onValueChange = { repeticiones = it }
-                    )
-                }
-            }
-
-            CampoTextoPersonalizado(
-                label = "Peso (kg)",
-                value = pesoKg,
-                placeholder = "60.5",
-                keyboardType = KeyboardType.Decimal,
-                onValueChange = { pesoKg = it }
+                singleLine = true
             )
 
-            CampoTextoPersonalizado(
-                label = "Fecha",
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = grupoMuscular,
+                onValueChange = { grupoMuscular = it },
+                label = { Text("Grupo muscular") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = series,
+                onValueChange = { series = it },
+                label = { Text("Series") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = repeticiones,
+                onValueChange = { repeticiones = it },
+                label = { Text("Repeticiones") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = pesoKg,
+                onValueChange = { pesoKg = it },
+                label = { Text("Peso (kg)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
                 value = fecha,
-                placeholder = "12/05/2026",
                 onValueChange = { fecha = it },
-                trailingIcon = {
-                    Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
-                }
+                label = { Text("Fecha") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             if (errorMessage.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
                     text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    color = MaterialTheme.colorScheme.error
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = {
@@ -168,77 +166,43 @@ fun AgregarRutinaScreen(
                     val repeticionesInt = repeticiones.toIntOrNull()
                     val pesoDouble = pesoKg.toDoubleOrNull()
 
-                    if (seriesInt == null || repeticionesInt == null || pesoDouble == null) {
+                    if (
+                        seriesInt == null ||
+                        repeticionesInt == null ||
+                        pesoDouble == null
+                    ) {
                         errorMessage = "Series, repeticiones y peso deben ser numéricos"
                         return@Button
                     }
 
                     scope.launch {
-                        db.rutinaDao().insertar(
-                            Rutina(
-                                usuarioId = usuarioId,
-                                ejercicio = ejercicio,
-                                grupoMuscular = grupoMuscular,
-                                series = seriesInt,
-                                repeticiones = repeticionesInt,
-                                pesoKg = pesoDouble,
-                                fecha = fecha
-                            )
+                        val nuevaRutina = Rutina(
+                            usuarioId = usuarioId,
+                            ejercicio = ejercicio,
+                            grupoMuscular = grupoMuscular,
+                            series = seriesInt,
+                            repeticiones = repeticionesInt,
+                            pesoKg = pesoDouble,
+                            fecha = fecha
                         )
+
+                        db.rutinaDao().insertar(nuevaRutina)
+
                         onRutinaGuardada()
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
+                    .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2B579A)
+                    containerColor = azul
                 )
             ) {
                 Text(
-                    "Guardar rutina",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "Guardar rutina",
+                    color = Color.White
                 )
             }
         }
-    }
-}
-
-@Composable
-fun CampoTextoPersonalizado(
-    label: String,
-    value: String,
-    placeholder: String,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    onValueChange: (String) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(start = 2.dp, bottom = 4.dp)
-        )
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = Color.Gray.copy(alpha = 0.5f)) },
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true,
-            trailingIcon = trailingIcon,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF2B579A),
-                unfocusedBorderColor = Color(0xFFE0E0E0),
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
-            )
-        )
     }
 }
